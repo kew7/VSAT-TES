@@ -19,7 +19,7 @@ extern CVSAT_TESApp theApp;
 
 CPortCom::CPortCom()
 {
-   // AbonDlg=new CAbonentDlg;          // создаем объект абонентского диалового окна
+   // AbonDlg=new CAbonentDlg;          // // СЃРѕР·РґР°РµРј РѕР±СЉРµРєС‚ Р°Р±РѕРЅРµРЅС‚СЃРєРѕРіРѕ РґРёР°Р»РѕРІРѕРіРѕ РѕРєРЅР°
 	
     //AbonDlg->Create(CAbonentDlg::IDD);
     //AbonDlg->EndDialog(0);
@@ -44,7 +44,7 @@ char BufRead[300];
 
   cd->AbonDlg->SynFlag1=FALSE;
 
-                 // Задаем модему вид модуляции и скорость
+                // Р—Р°РґР°РµРј РјРѕРґРµРјСѓ РІРёРґ РјРѕРґСѓР»СЏС†РёРё Рё СЃРєРѕСЂРѕСЃС‚СЊ
   if(cd->FlagBPSK==TRUE) {
 	  cd->WriteCommBlock("RM 0\r\n",0);
 	  cd->WriteCommBlock("RR "+theApp.dlg->m_ConfigDlg.m_Speed2+"\r\n",0);
@@ -74,7 +74,7 @@ char BufRead[300];
 	 }
 	 while(ReturnByte>0);
 
-	 if(strstr(BufRead,"ST")!=NULL)     //ждем синхронизации модема
+	 if(strstr(BufRead,"ST")!=NULL)     //Р¶РґРµРј СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РјРѕРґРµРјР°
 	 {
 		  cd->AbonDlg->SynFlag1=TRUE;
 		  cd->AbonDlg->PostMessage(MES_SYN,0,0);
@@ -100,7 +100,7 @@ char BufRead[300];
 
   cd->AbonDlg->SynFlag2=FALSE;
 
-                 // Задаем модему вид модуляции
+	// Р—Р°РґР°РµРј РјРѕРґРµРјСѓ РІРёРґ РјРѕРґСѓР»СЏС†РёРё
   if(cd->FlagBPSK==TRUE) {
 	  cd->WriteCommBlock1("RM 0\r\n",1);
 	  cd->WriteCommBlock1("RR "+theApp.dlg->m_ConfigDlg.m_Speed2+"\r\n",1);
@@ -129,7 +129,7 @@ char BufRead[300];
 	 }
 	 while(ReturnByte>0);
 
-	 if(strstr(BufRead,"ST")!=NULL)     //ждем синхронизации модема
+	 if(strstr(BufRead,"ST")!=NULL)     //Р¶РґРµРј СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РјРѕРґРµРјР°
 	 {
          cd->AbonDlg->SynFlag2=TRUE;
 		 cd->AbonDlg->PostMessage(MES_SYN,0,0);
@@ -142,8 +142,8 @@ return 0;
 }
 
 
-BOOL CPortCom::Proverka(int Num)    //функция проверки соединения модема с СОМ-портов
-{
+BOOL CPortCom::Proverka(int Num)    //С„СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂРєРё СЃРѕРµРґРёРЅРµРЅРёСЏ РјРѕРґРµРјР° СЃ РЎРћРњ-РїРѕСЂС‚
+
  CString DeviceName="COM",PortNum;
  OVERLAPPED os; 
 
@@ -201,7 +201,7 @@ WriteFile(hCom[Num],"EB\r\n",8,&Returned,&os);
 }
 
 
-BOOL CPortCom::Create(int Num) //функция открытия и инициализации портов 
+BOOL CPortCom::Create(int Num) //С„СѓРЅРєС†РёСЏ РѕС‚РєСЂС‹С‚РёСЏ Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РїРѕСЂС‚РѕРІ 
 {
 
  CString DeviceName="COM",PortNum;
@@ -285,7 +285,7 @@ if (!fSuccess)
 return TRUE;
 }
 
-BOOL CPortCom::OpenConnection(HANDLE h) // устанавливаем параметры обмена
+BOOL CPortCom::OpenConnection(HANDLE h) // СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїР°СЂР°РјРµС‚СЂС‹ РѕР±РјРµРЅР°
 {
  COMMTIMEOUTS CommTimeOuts;
  
@@ -368,7 +368,7 @@ SetCommMask(hCom[Num],EV_RXCHAR);
       	 Returned=0;
     	 ClearCommError(hCom[Num],&dwError,&ComStat);
          if(ReadFile(hCom[Num],BufRead+i,ComStat.cbInQue,&Returned,&osRead[Num])) i+=Returned;
-		 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //ждем ответа модема
+		 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //Р¶РґРµРј РѕС‚РІРµС‚Р° РјРѕРґРµРјР°
 			 Flag=1;
 			 if(Flag==1) break;
 		 }
@@ -399,7 +399,7 @@ SetCommMask(hCom[Num],EV_RXCHAR);
       	 Returned=0;
     	 ClearCommError(hCom[Num],&dwError,&ComStat);
          if(ReadFile(hCom[Num],BufRead+i,ComStat.cbInQue,&Returned,&osRead[Num])) i+=Returned;
-		 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //ждем ответа модема
+		 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //Г¦Г¤ГҐГ¬ Г®ГІГўГҐГІГ  Г¬Г®Г¤ГҐГ¬Г 
 			 Flag=1;
 			 if(Flag==1) break;
 		 }
@@ -410,9 +410,8 @@ if(Flag==1) return TRUE; else return FALSE;
 }
 
 
-BOOL CPortCom::OpenThreadSyn(CString Str,int Num)   //функция открытия потока для отлавливания синхронизации
+BOOL CPortCom::OpenThreadSyn(CString Str,int Num)   //С„СѓРЅРєС†РёСЏ РѕС‚РєСЂС‹С‚РёСЏ РїРѕС‚РѕРєР° РґР»СЏ РѕС‚Р»Р°РІР»РёРІР°РЅРёСЏ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё
 {
-	
 if(ComFlag[0])
 {
   if(!(hTHRSyn[0]=AfxBeginThread(ComThreadSyn1,(void*)this,THREAD_PRIORITY_NORMAL,0,0,NULL)))
