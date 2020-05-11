@@ -357,7 +357,6 @@ void CHDLC::FirstFlag(BYTE*buf_inp,int lenb)
 
 	       l=0; continue;
     }
-		 
 		   
 	   if(sum_ed==5)
 	   {
