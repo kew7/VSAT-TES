@@ -11,4 +11,4 @@ Project for receiving and processing signals of satellite modems of the VSAT-TES
 QPSK-РВК16-НСК 3/4-V.35
 (фазовая модуляция QPSK-перемежитель РВК16 (цикл 16 бит)-сверточный декодер Витерби НСК-скремблер по рек.ITU-T V.35 (3,20)).
 Общая информация по сетям VSAT: https://www.osp.ru/nets/2000/04/141088 
-                          https://satprocom.ru/dokumentacija/13402/ .
+                                https://satprocom.ru/dokumentacija/13402/ .
