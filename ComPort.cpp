@@ -143,9 +143,9 @@ return 0;
 
 
 BOOL CPortCom::Proverka(int Num)    //функция проверки соединения модема с СОМ-порт
-
- CString DeviceName="COM",PortNum;
- OVERLAPPED os; 
+{
+	CString DeviceName="COM",PortNum;
+	OVERLAPPED os; 
 
 	PortNum.Format("%d",Num+1);
 	DeviceName+=PortNum;
@@ -158,136 +158,130 @@ BOOL CPortCom::Proverka(int Num)    //функция проверки соеди
     FILE_ATTRIBUTE_NORMAL
 	|FILE_FLAG_OVERLAPPED, 
     NULL
-    );
+	);
 
-memset(&os,0,sizeof(OVERLAPPED));
-os.hEvent = CreateEvent( NULL,    // no security
-                            TRUE,    // explicit reset req
-                            FALSE,   // initial event reset
-                            NULL ) ; // no name
-   if (os.hEvent == NULL)
-   {
-      MessageBox( NULL, "Failed to create event for thread!", "TTY Error!",
-                  MB_ICONEXCLAMATION | MB_OK ) ;
-      return ( FALSE ) ;
-   }
+	memset(&os,0,sizeof(OVERLAPPED));
+	os.hEvent = CreateEvent( NULL,    // no security
+								TRUE,    // explicit reset req
+								FALSE,   // initial event reset
+								NULL ) ; // no name
+		if (os.hEvent == NULL)
+		{
+		   MessageBox(NULL, "Failed to create event for thread!", "TTY Error!",
+			   MB_ICONEXCLAMATION | MB_OK);
+		   return (FALSE);
+		 }
 
-if (hCom[Num] == INVALID_HANDLE_VALUE) 
-{
-    // Handle the error. 
-	return FALSE;
-}
+		if (hCom[Num] == INVALID_HANDLE_VALUE) 
+		{
+			// Handle the error. 
+			return FALSE;
+		}
 
-if(!OpenConnection(hCom[Num])) return FALSE;
+		if (!OpenConnection(hCom[Num])) return FALSE;
 
-WriteFile(hCom[Num],"EB\r\n",8,&Returned,&os);
-   if(!OpenThread(Num)) 
-   {
-	   if(Num==0)  { CloseHandle(hTHR[0]);  CloseHandle(hCom[0]);}
-	   else {CloseHandle(hTHR[1]); CloseHandle(hCom[1]);}
-       CloseHandle(os.hEvent);
-       return FALSE;
-   }
-   else
-   {
-	   if(Num==0) { 
-		   CloseHandle(hTHR[0]);
-		   CloseHandle(hCom[0]);}
-       else { CloseHandle(hTHR[1]);	 CloseHandle(hCom[1]);}
-       CloseHandle(os.hEvent);
-	   return TRUE;
-   }
-
+		WriteFile(hCom[Num], "EB\r\n", 8, &Returned, &os);
+		if (!OpenThread(Num))
+		{
+			if (Num == 0) { CloseHandle(hTHR[0]);  CloseHandle(hCom[0]); }
+			else { CloseHandle(hTHR[1]); CloseHandle(hCom[1]); }
+			CloseHandle(os.hEvent);
+			return FALSE;
+		}
+		else
+		{
+			if (Num == 0) {
+				CloseHandle(hTHR[0]);
+				CloseHandle(hCom[0]);
+			}
+			else { CloseHandle(hTHR[1]);	 CloseHandle(hCom[1]); }
+			CloseHandle(os.hEvent);
+			return TRUE;
+		}
 }
 
 
 BOOL CPortCom::Create(int Num) //функция открытия и инициализации портов 
 {
 
- CString DeviceName="COM",PortNum;
+	CString DeviceName="COM",PortNum;
 
 	PortNum.Format("%d",Num+1);
 	DeviceName+=PortNum;
 
-hCom[Num] = CreateFile( DeviceName,  
-    GENERIC_READ | GENERIC_WRITE,    
-    0,    // exclusive access 
-    NULL, // no security attributes 
-    OPEN_EXISTING,
-    FILE_ATTRIBUTE_NORMAL
-	|FILE_FLAG_OVERLAPPED,
-    NULL
-    );
+	hCom[Num] = CreateFile( DeviceName,  
+		GENERIC_READ | GENERIC_WRITE,    
+		0,    // exclusive access 
+		NULL, // no security attributes 
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL
+		|FILE_FLAG_OVERLAPPED,
+		NULL
+		);
 
-if (hCom[Num] == INVALID_HANDLE_VALUE) 
-{
-    // Handle the error. 
-	return FALSE;
-}
+		if (hCom[Num] == INVALID_HANDLE_VALUE) 
+		{
+			// Handle the error. 
+			return FALSE;
+		}
 
-for(int i=0; i<2;i++)
-{
-memset(&osRead[Num],0,sizeof(OVERLAPPED));
-memset(&osWrite[Num],0,sizeof(OVERLAPPED));
-osRead[Num].Offset=0;   osRead[Num].OffsetHigh=0;
-osWrite[Num].Offset=0;    osWrite[Num].OffsetHigh=0;
-}
+		for(int i=0; i<2;i++)
+		{
+		memset(&osRead[Num],0,sizeof(OVERLAPPED));
+		memset(&osWrite[Num],0,sizeof(OVERLAPPED));
+		osRead[Num].Offset=0;   osRead[Num].OffsetHigh=0;
+		osWrite[Num].Offset=0;    osWrite[Num].OffsetHigh=0;
+		}
 
+		if(!OpenConnection(hCom[Num])) return FALSE;
 
-if(!OpenConnection(hCom[Num])) return FALSE;
+		if((osRead[Num].hEvent=CreateEvent(NULL,
+									TRUE,
+									FALSE,
+									NULL))==NULL)  return FALSE;
 
-
-
-if((osRead[Num].hEvent=CreateEvent(NULL,
-						    TRUE,
-						    FALSE,
-						    NULL))==NULL)  return FALSE;
-
-if((osWrite[Num].hEvent=CreateEvent(NULL,
-						    TRUE,
-						    FALSE,
-						    NULL))==NULL) return FALSE;
-
+		if((osWrite[Num].hEvent=CreateEvent(NULL,
+									TRUE,
+									FALSE,
+									NULL))==NULL) return FALSE;
 return TRUE;
 }
 
 
-BOOL CPortCom::SetupConnection(HANDLE h)
+BOOL CPortCom::SetupConnection(HANDLE h)		// параметры соединения с COM
 {
+		DCB dcb;
+		BOOL fSuccess;
 
-DCB dcb;
-BOOL fSuccess;
+		fSuccess = GetCommState(h, &dcb);
 
-fSuccess = GetCommState(h, &dcb);
+		if (!fSuccess) 
+		{
+			return FALSE;  // Handle the error. 
+		}
 
-if (!fSuccess) 
-{
-    return FALSE;  // Handle the error. 
-}
+		// Fill in the DCB: baud=9600, 8 data bits, no parity, 1 stop bit. 
+		dcb.BaudRate = 9600;
+		dcb.ByteSize = 8;
+		dcb.Parity = NOPARITY;
+		dcb.StopBits = ONESTOPBIT;
+		dcb.XonChar = ASCII_XON ;
+		dcb.XoffChar = ASCII_XOFF ;
+		dcb.XonLim = 100 ;
+		dcb.XoffLim = 100 ;
+		fSuccess = SetCommState(h, &dcb);
 
-// Fill in the DCB: baud=9600, 8 data bits, no parity, 1 stop bit. 
-
-dcb.BaudRate = 9600;
-dcb.ByteSize = 8;
-dcb.Parity = NOPARITY;
-dcb.StopBits = ONESTOPBIT;
-dcb.XonChar = ASCII_XON ;
-dcb.XoffChar = ASCII_XOFF ;
-dcb.XonLim = 100 ;
-dcb.XoffLim = 100 ;
-fSuccess = SetCommState(h, &dcb);
-
-if (!fSuccess) 
-{
-  return FALSE;    // Handle the error. 
-}
+		if (!fSuccess) 
+		{
+		  return FALSE;    // Handle the error. 
+		}
  
 return TRUE;
 }
 
 BOOL CPortCom::OpenConnection(HANDLE h) // устанавливаем параметры обмена
 {
- COMMTIMEOUTS CommTimeOuts;
+	COMMTIMEOUTS CommTimeOuts;
  
       SetupComm(h, 4096, 4096 ) ;
 
@@ -311,135 +305,135 @@ BOOL CPortCom::OpenConnection(HANDLE h) // устанавливаем парам
 }
 
 
-BOOL CPortCom::OpenThread(int Num)
+BOOL CPortCom::OpenThread(int Num)		// создание потока
 {
-  NumDevice=Num;
-//  for(int i=0;i<2;i++) ComFlag[i]=FALSE;
-  if(!(hTHR[Num]=CreateThread(NULL,0,ComThreadFunc,(void*)this,0,NULL))) return FALSE;
-  else
-  {
-	  SetThreadPriority(hTHR[Num],THREAD_PRIORITY_NORMAL);
-	  Sleep(500);
-	  if(ComFlag[Num]==TRUE) return TRUE; 
-	  else 	return FALSE;
+	  NumDevice=Num;
+	//  for(int i=0;i<2;i++) ComFlag[i]=FALSE;
+	  if(!(hTHR[Num]=CreateThread(NULL,0,ComThreadFunc,(void*)this,0,NULL))) return FALSE;
+	  else
+	  {
+		  SetThreadPriority(hTHR[Num],THREAD_PRIORITY_NORMAL);
+		  Sleep(500);
+		  if(ComFlag[Num]==TRUE) return TRUE; 
+		  else 	return FALSE;
 	  
-  }
+	  }
 }
 
 
-DWORD WINAPI ComThreadFunc(void*Com)
+DWORD WINAPI ComThreadFunc(void*Com)	// функция потока
 {
-DWORD dwEvtMask;
+	DWORD dwEvtMask;
 
- cClass cd=(cClass)Com;
- SetCommMask(cd->hCom[cd->NumDevice],EV_RXCHAR) ;
- dwEvtMask=0;
- {
- WaitCommEvent(cd->hCom[cd->NumDevice],&dwEvtMask,NULL);
- if((dwEvtMask&EV_RXCHAR)==EV_RXCHAR)
- {
-	 cd->ComFlag[cd->NumDevice]=TRUE;
- }
- else {cd->ComFlag[cd->NumDevice]=FALSE;}
- }
-return 0;
+	 cClass cd=(cClass)Com;
+	 SetCommMask(cd->hCom[cd->NumDevice],EV_RXCHAR) ;
+	 dwEvtMask=0;
+	 {
+	 WaitCommEvent(cd->hCom[cd->NumDevice],&dwEvtMask,NULL);
+	 if((dwEvtMask&EV_RXCHAR)==EV_RXCHAR)
+	 {
+		 cd->ComFlag[cd->NumDevice]=TRUE;
+	 }
+	 else {cd->ComFlag[cd->NumDevice]=FALSE;}
+	 }
+	return 0;
  
 }
 
 
-BOOL CPortCom::WriteCommBlock(CString BufWrite,int Num)
+BOOL CPortCom::WriteCommBlock(CString BufWrite,int Num)		// отправка данных настройки модему
 {
-COMSTAT ComStat;
-int i=0;
-int Flag=0;
-DWORD dwEvtMask,dwError;
-CString BRead="";
-char BufRead[300];
+		COMSTAT ComStat;
+		int i=0;
+		int Flag=0;
+		DWORD dwEvtMask,dwError;
+		CString BRead="";
+		char BufRead[300];
 
-WriteFile(hCom[Num],BufWrite,BufWrite.GetLength(),&Returned,&osWrite[Num]);
+		WriteFile(hCom[Num],BufWrite,BufWrite.GetLength(),&Returned,&osWrite[Num]);
 
-SetCommMask(hCom[Num],EV_RXCHAR);
-	     do
-		 {
-      dwEvtMask=0;
-	  WaitCommEvent(hCom[Num], &dwEvtMask, NULL);
-      if ((dwEvtMask & EV_RXCHAR)==EV_RXCHAR) 
-	  {
-      	 Returned=0;
-    	 ClearCommError(hCom[Num],&dwError,&ComStat);
-         if(ReadFile(hCom[Num],BufRead+i,ComStat.cbInQue,&Returned,&osRead[Num])) i+=Returned;
-		 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //ждем ответа модема
-			 Flag=1;
-			 if(Flag==1) break;
-		 }
-	  }
-		 }
-       while(Flag!=1);
-if(Flag==1) return TRUE; else return FALSE;
+		SetCommMask(hCom[Num],EV_RXCHAR);
+				do
+				{
+					  dwEvtMask=0;
+					  WaitCommEvent(hCom[Num], &dwEvtMask, NULL);
+					  if ((dwEvtMask & EV_RXCHAR)==EV_RXCHAR) 
+					  {
+      					 Returned=0;
+    					 ClearCommError(hCom[Num],&dwError,&ComStat);
+						 if(ReadFile(hCom[Num],BufRead+i,ComStat.cbInQue,&Returned,&osRead[Num])) i+=Returned;
+						 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //ждем ответа модема
+							 Flag=1;
+							 if(Flag==1) break;
+						 }
+					  }
+				}
+				while(Flag!=1);
+		if(Flag==1) return TRUE; else return FALSE;
 }
 
 BOOL CPortCom::WriteCommBlock1(CString BufWrite,int Num)
 {
-COMSTAT ComStat;
-int i=0;
-int Flag=0;
-DWORD dwEvtMask,dwError;
-CString BRead="";
-char BufRead[300];
+		COMSTAT ComStat;
+		int i=0;
+		int Flag=0;
+		DWORD dwEvtMask,dwError;
+		CString BRead="";
+		char BufRead[300];
 
-WriteFile(hCom[Num],BufWrite,BufWrite.GetLength(),&Returned,&osWrite[Num]);
+		WriteFile(hCom[Num],BufWrite,BufWrite.GetLength(),&Returned,&osWrite[Num]);
 
-SetCommMask(hCom[Num],EV_RXCHAR);
-	     do
-		 {
-      dwEvtMask=0;
-	  WaitCommEvent(hCom[Num], &dwEvtMask, NULL);
-      if ((dwEvtMask & EV_RXCHAR)==EV_RXCHAR) 
-	  {
-      	 Returned=0;
-    	 ClearCommError(hCom[Num],&dwError,&ComStat);
-         if(ReadFile(hCom[Num],BufRead+i,ComStat.cbInQue,&Returned,&osRead[Num])) i+=Returned;
-		 for(int n=0;n<i;n++) if(BufRead[n]=='>'){       //æäåì îòâåòà ìîäåìà
-			 Flag=1;
-			 if(Flag==1) break;
-		 }
-	  }
-		 }
-       while(Flag!=1);
-if(Flag==1) return TRUE; else return FALSE;
+		SetCommMask(hCom[Num],EV_RXCHAR);
+			do
+			{
+			  dwEvtMask=0;
+			  WaitCommEvent(hCom[Num], &dwEvtMask, NULL);
+			  if ((dwEvtMask & EV_RXCHAR)==EV_RXCHAR) 
+			  {
+      			 Returned=0;
+    			 ClearCommError(hCom[Num],&dwError,&ComStat);
+				 if(ReadFile(hCom[Num],BufRead+i,ComStat.cbInQue,&Returned,&osRead[Num])) i+=Returned;
+				 for(int n=0;n<i;n++) if(BufRead[n]=='>'){      
+					 Flag=1;
+					 if(Flag==1) break;
+				 }
+			  }
+			}
+			while(Flag!=1);
+		if(Flag==1) return TRUE; else return FALSE;
 }
 
 
 BOOL CPortCom::OpenThreadSyn(CString Str,int Num)   //функция открытия потока для отлавливания синхронизации
 {
-if(ComFlag[0])
-{
-  if(!(hTHRSyn[0]=AfxBeginThread(ComThreadSyn1,(void*)this,THREAD_PRIORITY_NORMAL,0,0,NULL)))
-  { 
-	  WorkFlag[0]=FALSE;
-	  return FALSE;
-  }
-  else
-  {
-	  WorkFlag[0]=TRUE;
+		if (ComFlag[0])
+		{
+			if (!(hTHRSyn[0] = AfxBeginThread(ComThreadSyn1, (void*)this, THREAD_PRIORITY_NORMAL, 0, 0, NULL)))
+			{
+				WorkFlag[0] = FALSE;
+				return FALSE;
+			}
+			else
+			{
+				WorkFlag[0] = TRUE;
 
-  }
-} 
-if(ComFlag[1])
-{
- if(!(hTHRSyn[1]=AfxBeginThread(ComThreadSyn2,(void*)this,THREAD_PRIORITY_NORMAL,0,0,NULL)))
+			}
+		}
+		if (ComFlag[1])
+		{
+			if (!(hTHRSyn[1] = AfxBeginThread(ComThreadSyn2, (void*)this, THREAD_PRIORITY_NORMAL, 0, 0, NULL)))
 
-	{
-	 WorkFlag[1]=FALSE;
-	 return FALSE;
-	}
-	else
-	{
-	  WorkFlag[1]=TRUE;
-	}
-}
-if((!ComFlag[0])&&(!ComFlag[0])) return FALSE;
-return TRUE;
+			{
+				WorkFlag[1] = FALSE;
+				return FALSE;
+			}
+			else
+			{
+				WorkFlag[1] = TRUE;
+			}
+		}
+		if ((!ComFlag[0]) && (!ComFlag[0])) return FALSE;
+	return TRUE;
 }
 
 

@@ -56,98 +56,98 @@ void CAbonent::init(BYTE Num)
 BOOL CAbonent::Demultiplex(BYTE *buf, int len)  // функция разделения потока на 2 подпотока
 {
 
-int  k=0,
-	 i=0;
+	int  k=0,
+		 i=0;
 
-   if(Num_kan==3)
-   {
-                              
-	 while(i<(len>>3))
-	 {
-       
-       if((buf[2+8*i]>1)&&(buf[6+8*i]>1))  // проверяем наличие данных в обоих каналах
+	   if(Num_kan==3)
 	   {
-		   if(buf[8*i]!=buf[4+8*i])  Num_kan=2; // есть сигнал в обоих каналах    
-		   if(buf[8*i]==buf[4+8*i]) 
+                              
+		 while(i<(len>>3))
+		 {
+       
+		   if((buf[2+8*i]>1)&&(buf[6+8*i]>1))  // проверяем наличие данных в обоих каналах
 		   {
-			   if(buf[8*i]==0) Num_kan=0;       // есть сигнал по 0-му каналу
-			   if(buf[8*i]==1) Num_kan=1;       // есть сигнал по 1-му каналу
-		   }
-           break;                          // выходим если есть данные
- 	   }
-	   i++;
-	 }
-   };
+			   if(buf[8*i]!=buf[4+8*i])  Num_kan=2; // есть сигнал в обоих каналах    
+			   if(buf[8*i]==buf[4+8*i]) 
+			   {
+				   if(buf[8*i]==0) Num_kan=0;       // есть сигнал по 0-му каналу
+				   if(buf[8*i]==1) Num_kan=1;       // есть сигнал по 1-му каналу
+			   }
+			   break;                          // выходим если есть данные
+ 		   }
+		   i++;
+		 }
+	   };
 
-   if(Num_kan==0)
-   {
-    while(i<(len>>3))
-	{
-
+	   if(Num_kan==0)
+	   {
+		while(i<(len>>3))
 		{
-			buf_in1[k++]=buf[2+8*i];    buf_in1[k++]=buf[3+8*i];  //  0-й канал
-			buf_in1[k++]=buf[6+8*i];  buf_in1[k++]=buf[7+8*i];   
+
+			{
+				buf_in1[k++]=buf[2+8*i];    buf_in1[k++]=buf[3+8*i];  //  0-й канал
+				buf_in1[k++]=buf[6+8*i];  buf_in1[k++]=buf[7+8*i];   
            
-		}
-		if(buf[8*i]>1)
-		{
-			MessageBox(NULL,"Проверьте сигнал на входе Mirage0","",0);
-			exit(0);
-		}
-		i++;
-	}
-	SizeBuf_kan=k;
-	return TRUE;
-   }	
-    
-   if(Num_kan==1)
-   {
-    while(i<(len>>3))
-	{
-
-		{
-			buf_in2[k]=buf[2+8*i];    buf_in2[++k]=buf[3+8*i];  //  1-й канал
-			buf_in2[++k]=buf[6+8*i];  buf_in2[++k]=buf[7+8*i];   
-            k++;
-		}
-		if(buf[8*i]>1)
-		{
-            MessageBox(NULL,"Проверьте сигнал на входе Mirage0","",0);
-			exit(0);
-		}
-		i++;
-	}
-	SizeBuf_kan=k;
-	return TRUE;
-   }	
-
-   if(Num_kan==2)
-	{
-    while(i<(len>>3))
-	{
-		if(buf[8*i]==0) 
-		{
-			buf_in1[k]=buf[2+8*i];   buf_in2[k]=buf[6+8*i];  // порядок каналов в потоке 0k-1k-0k-1k
-			k++;
-			buf_in1[k]=buf[3+8*i];   buf_in2[k]=buf[7+8*i];   
-			k++;
-		}
-		if(buf[8*i]==1)                                      // порядок каналов в потоке 1k-0k-1k-0k
-		{
-			buf_in1[k]=buf[6+8*i];   buf_in2[k]=buf[2+8*i];
-			k++;
-			buf_in1[k]=buf[7+8*i];   buf_in2[k]=buf[3+8*i];
-			k++;
-		}
-		if(buf[8*i]>1)
-		{
-	        MessageBox(NULL,"Проверьте сигнал на входе Mirage0","",0);
-			exit(0);
-		}
+			}
+			if(buf[8*i]>1)
+			{
+				MessageBox(NULL,"Проверьте сигнал на входе Mirage0","",0);
+				exit(0);
+			}
 			i++;
-	}
-	SizeBuf_kan=k;
-	return TRUE;
+		}
+		SizeBuf_kan=k;
+		return TRUE;
+	   }	
+    
+	   if(Num_kan==1)
+	   {
+		while(i<(len>>3))
+		{
+
+			{
+				buf_in2[k]=buf[2+8*i];    buf_in2[++k]=buf[3+8*i];  //  1-й канал
+				buf_in2[++k]=buf[6+8*i];  buf_in2[++k]=buf[7+8*i];   
+				k++;
+			}
+			if(buf[8*i]>1)
+			{
+				MessageBox(NULL,"Проверьте сигнал на входе Mirage0","",0);
+				exit(0);
+			}
+			i++;
+		}
+		SizeBuf_kan=k;
+		return TRUE;
+	   }	
+
+	   if(Num_kan==2)
+		{
+		while(i<(len>>3))
+		{
+			if(buf[8*i]==0) 
+			{
+				buf_in1[k]=buf[2+8*i];   buf_in2[k]=buf[6+8*i];  // порядок каналов в потоке 0k-1k-0k-1k
+				k++;
+				buf_in1[k]=buf[3+8*i];   buf_in2[k]=buf[7+8*i];   
+				k++;
+			}
+			if(buf[8*i]==1)                                      // порядок каналов в потоке 1k-0k-1k-0k
+			{
+				buf_in1[k]=buf[6+8*i];   buf_in2[k]=buf[2+8*i];
+				k++;
+				buf_in1[k]=buf[7+8*i];   buf_in2[k]=buf[3+8*i];
+				k++;
+			}
+			if(buf[8*i]>1)
+			{
+				MessageBox(NULL,"Проверьте сигнал на входе Mirage0","",0);
+				exit(0);
+			}
+				i++;
+		}
+		SizeBuf_kan=k;
+		return TRUE;
    }	
 
 return FALSE;
@@ -157,111 +157,109 @@ return FALSE;
 BOOL CAbonent::synchro_search(BYTE * buf_in, int lenb,BYTE Num)          //поиск синхронизации
 {
 
-unsigned int l,i;
+	unsigned int l, i;
     
-		// Генерируем последовательности для определения фазы декодера
-		// Используется операция сдвига sdvig(BYTE*,int,unsigned i)
-init(Num);
+	// Генерируем последовательности для определения фазы декодера
+	// Используется операция сдвига sdvig(BYTE*,int,unsigned i)
+	init(Num);
 	    
-  turn_faza=T_0;
-  prev_shift=0;
-  for (i=0; i<16; i++)                      // Исходный + 16 сдвигов
-  {
-	memcpy(massiv[i],buf_in,lenb);
-	l=sdvig(massiv[i], lenb, i);
-	deperem34(massiv[i],buf_deper,lenb);
-	for(int j=0;j<4;j++)
-	{
-    sdvig(buf_deper,lenb,j); 
-	if(Num==0) Variant1=VAR_A; else Variant2=VAR_A;
-	if(ch_sind(buf_deper,lenb,Num))
-		 { 
-		  if(Num==0) turn_faza1=T_0; else turn_faza2=T_0;
-          if(Num==0) prev_shift1=0;  else prev_shift2=0;
-		  if(Num==0) reg_shift1=j; else reg_shift2=j;
-		  if(Num==0) sdwig1=i;     else sdwig2=i;
-          return TRUE;
-		 } 
-	if(Num==0) Variant1=VAR_B; else Variant2=VAR_B;
-	if(ch_sind(buf_deper,lenb,Num))
-		 { 
-		  if(Num==0) turn_faza1=T_0; else turn_faza2=T_0;
-          if(Num==0) prev_shift1=0;  else prev_shift2=0;
-		  if(Num==0) reg_shift1=j; else reg_shift2=j;
-		  if(Num==0) sdwig1=i;     else sdwig2=i;
-		  return TRUE;
-		 } 
-	}
-  }
-  
-    turn_faza=T_90;               
-	turn_faza_90_34(buf_in, buf_out, lenb, turn_faza); 
- 	for (i=0; i<16; i++)                           // поворот на 90 + 16 сдвигов
-	{
-	 memcpy(massiv[i+16],buf_out,lenb);	
-	 l=sdvig(massiv[i+16],lenb,i);
-	 deperem34(massiv[i+16],buf_deper,lenb);
-	 for(int j=0;j<4;j++)
-	 {
-        sdvig(buf_deper,lenb,j); 
-		if(Num==0) Variant1=VAR_A; else Variant2=VAR_A;
-		if(ch_sind(buf_deper,lenb,Num))
-		{
-         if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
-         if(Num==0) prev_shift1=0;  else prev_shift2=0;
-         if(Num==0) reg_shift1=j; else reg_shift2=j;
-		 if(Num==0) sdwig1=i;     else sdwig2=i;
-     	 return TRUE;
-		}
-		if(Num==0) Variant1=VAR_B; else Variant2=VAR_B;
-	    if(ch_sind(buf_deper,lenb,Num))
-		{
-		 if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
-         if(Num==0) prev_shift1=0;  else prev_shift2=0;	
-         if(Num==0) reg_shift1=j; else reg_shift2=j;
-		 if(Num==0) sdwig1=i;     else sdwig2=i;
-         return TRUE;
-		} 
-	 }
-	}
-    
-	memcpy(buf_temp,buf_in, lenb);
-	sdvig(buf_temp, lenb, 1)                      ;	// сдвиг на 1 бит, поворот на 90
-	turn_faza_90_34(buf_temp,buf_out,lenb, turn_faza);   // + 16 сдвигов
-	prev_shift=1;
-	for (i=0; i<16; i++)
-	{                            			     	      
-        memcpy(massiv[i+32],buf_out, lenb);
-		l=sdvig(massiv[i+32],lenb, i);
-		deperem34(massiv[i+32],buf_deper,lenb);
+	  turn_faza=T_0;
+	  prev_shift=0;
+	  for (i=0; i<16; i++)                      // Исходный + 16 сдвигов
+	  {
+		memcpy(massiv[i],buf_in,lenb);
+		l=sdvig(massiv[i], lenb, i);
+		deperem34(massiv[i],buf_deper,lenb);
 		for(int j=0;j<4;j++)
 		{
-        sdvig(buf_deper,lenb,j); 
+		sdvig(buf_deper,lenb,j); 
 		if(Num==0) Variant1=VAR_A; else Variant2=VAR_A;
 		if(ch_sind(buf_deper,lenb,Num))
-		{
-         if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
-         if(Num==0) prev_shift1=1;  else prev_shift2=1;
-	     if(Num==0) reg_shift1=j; else reg_shift2=j;
-		 if(Num==0) sdwig1=i;     else sdwig2=i;
-		 return TRUE;
-		}
+			 { 
+			  if(Num==0) turn_faza1=T_0; else turn_faza2=T_0;
+			  if(Num==0) prev_shift1=0;  else prev_shift2=0;
+			  if(Num==0) reg_shift1=j; else reg_shift2=j;
+			  if(Num==0) sdwig1=i;     else sdwig2=i;
+			  return TRUE;
+			 } 
 		if(Num==0) Variant1=VAR_B; else Variant2=VAR_B;
-	    if(ch_sind(buf_deper,lenb,Num))
-		 { 
-          if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
-          if(Num==0) prev_shift1=1;  else prev_shift2=1;
-          if(Num==0) reg_shift1=j; else reg_shift2=j;
-		  if(Num==0) sdwig1=i;     else sdwig2=i;
-          return TRUE;
-		 } 
+		if(ch_sind(buf_deper,lenb,Num))
+			 { 
+			  if(Num==0) turn_faza1=T_0; else turn_faza2=T_0;
+			  if(Num==0) prev_shift1=0;  else prev_shift2=0;
+			  if(Num==0) reg_shift1=j; else reg_shift2=j;
+			  if(Num==0) sdwig1=i;     else sdwig2=i;
+			  return TRUE;
+			 } 
 		}
-	}
+	  }
+  
+		turn_faza=T_90;               
+		turn_faza_90_34(buf_in, buf_out, lenb, turn_faza); 
+ 		for (i=0; i<16; i++)                           // поворот на 90 + 16 сдвигов
+		{
+		 memcpy(massiv[i+16],buf_out,lenb);	
+		 l=sdvig(massiv[i+16],lenb,i);
+		 deperem34(massiv[i+16],buf_deper,lenb);
+		 for(int j=0;j<4;j++)
+		 {
+			sdvig(buf_deper,lenb,j); 
+			if(Num==0) Variant1=VAR_A; else Variant2=VAR_A;
+			if(ch_sind(buf_deper,lenb,Num))
+			{
+			 if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
+			 if(Num==0) prev_shift1=0;  else prev_shift2=0;
+			 if(Num==0) reg_shift1=j; else reg_shift2=j;
+			 if(Num==0) sdwig1=i;     else sdwig2=i;
+     		 return TRUE;
+			}
+			if(Num==0) Variant1=VAR_B; else Variant2=VAR_B;
+			if(ch_sind(buf_deper,lenb,Num))
+			{
+			 if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
+			 if(Num==0) prev_shift1=0;  else prev_shift2=0;	
+			 if(Num==0) reg_shift1=j; else reg_shift2=j;
+			 if(Num==0) sdwig1=i;     else sdwig2=i;
+			 return TRUE;
+			} 
+		 }
+		}
+    
+		memcpy(buf_temp,buf_in, lenb);
+		sdvig(buf_temp, lenb, 1)                      ;	// сдвиг на 1 бит, поворот на 90
+		turn_faza_90_34(buf_temp,buf_out,lenb, turn_faza);   // + 16 сдвигов
+		prev_shift=1;
+		for (i=0; i<16; i++)
+		{                            			     	      
+			memcpy(massiv[i+32],buf_out, lenb);
+			l=sdvig(massiv[i+32],lenb, i);
+			deperem34(massiv[i+32],buf_deper,lenb);
+			for(int j=0;j<4;j++)
+			{
+			sdvig(buf_deper,lenb,j); 
+			if(Num==0) Variant1=VAR_A; else Variant2=VAR_A;
+			if(ch_sind(buf_deper,lenb,Num))
+			{
+			 if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
+			 if(Num==0) prev_shift1=1;  else prev_shift2=1;
+			 if(Num==0) reg_shift1=j; else reg_shift2=j;
+			 if(Num==0) sdwig1=i;     else sdwig2=i;
+			 return TRUE;
+			}
+			if(Num==0) Variant1=VAR_B; else Variant2=VAR_B;
+			if(ch_sind(buf_deper,lenb,Num))
+			 { 
+			  if(Num==0) turn_faza1=T_90; else turn_faza2=T_90;
+			  if(Num==0) prev_shift1=1;  else prev_shift2=1;
+			  if(Num==0) reg_shift1=j; else reg_shift2=j;
+			  if(Num==0) sdwig1=i;     else sdwig2=i;
+			  return TRUE;
+			 } 
+			}
+		}
 return FALSE;
 }
-
-                         
-
+                     
 BYTE CAbonent::ch_sind(BYTE*buf_inp, unsigned int len,BYTE Num)
 {
 unsigned int	i,j,k,l;
@@ -269,17 +267,17 @@ double nu=0,ed=0;
 
 BYTE reg=0,*Buf_temp,variant;
 
-static unsigned int mask_a[18]={0x01, 0x02, 0x10, 0x40, 0x80, 0x200, 0x400,
+	static unsigned int mask_a[18]={0x01, 0x02, 0x10, 0x40, 0x80, 0x200, 0x400,
 				    0x1000, 0x2000, 0x10000, 0x40000, 0x100000,
 				    0x200000, 0x800000, 0x1000000, 0x2000000,
 				    0x4000000, 0x8000000},
-			mask_b[18]={0x01, 0x02, 0x20, 0x40, 0x80, 0x100, 0x800,
+						mask_b[18]={0x01, 0x02, 0x20, 0x40, 0x80, 0x100, 0x800,
 				    0x1000, 0x2000, 0x20000, 0x80000, 0x100000,
 				    0x200000, 0x400000, 0x1000000, 0x2000000,
 				    0x4000000, 0x8000000};
-unsigned int registr=0x00000000;
+	unsigned int registr=0x00000000;
 
-Buf_temp=new BYTE[len<<1];
+	Buf_temp=new BYTE[len<<1];
 
         if(Num==0) variant=Variant1; else variant=Variant2; //разделение подканалов
 
@@ -304,41 +302,41 @@ Buf_temp=new BYTE[len<<1];
 				Buf_temp[l]=reg;
 				reg=0;
 			}
-    j=0;
-	for (i=0 ; i<l; ++i)
-	{
-		if (!Buf_temp[i])
-			++j;
-	//	else j=0;
-	//	if(j==30) break;
-	}
-	nu=j;
-	ed=l-j;
-	  
-	if(len==30)
-	{
-            	  if ((!nu)||(ed/nu>0.1));
-	              else
-				  {
-		            delete [] Buf_temp;
-		            return 1;	
-				  }
-	}
-    else
-	{
-	              if ((!nu)||(ed/nu>0.01));
-	              else
-				  {
-		            delete [] Buf_temp;
-		            return 1;	
-				  }
-	  
-	}
 
-delete [] Buf_temp;
-return 0; //фаза неверна
+		j=0;
+		for (i=0 ; i<l; ++i)
+		{
+			if (!Buf_temp[i])
+				++j;
+		//	else j=0;
+		//	if(j==30) break;
+		}
+		nu=j;
+		ed=l-j;
+	  
+		if(len==30)
+		{
+				if ((!nu)||(ed/nu>0.1));
+				else
+				{
+					delete [] Buf_temp;
+					return 1;	
+				}
+		}
+		else
+		{
+				if ((!nu)||(ed/nu>0.01));
+				else
+				{
+					 delete [] Buf_temp;
+					 return 1;	
+				}
+	  
+		}
+
+	delete [] Buf_temp;
+	return 0; //фаза неверна
 }
-
 
                  //функция обработки входного потока(синхронизация и декодирование)
 
@@ -493,22 +491,22 @@ int CAbonent::sdvig(BYTE *buf, int len , int s)  // операция сдвига потока
 		   if(n==(len-2)) buf[n]>>=(s-8); else buf[n]=0;
 		   }
 	          
-return n;	
+	return n;	
 }
 
 
 VOID CAbonent::desdvig(BYTE *buf, int len,BYTE simv,BYTE Num)
 {
-int	i;
-unsigned char simv_p;
-    if(Num==0) simv_desdvig1=(((buf[len-1])>>7)&1);
-	if(Num==1) simv_desdvig2=(((buf[len-1])>>7)&1);
-	for (i=0; i<len; i++) {
-		simv_p=(buf[i]>>7)&1;
-		buf[i]=((buf[i]<<1)&0xFE)|(simv&1);
-		simv=simv_p;
+	int	i;
+	unsigned char simv_p;
+	if (Num == 0) simv_desdvig1 = (((buf[len - 1]) >> 7) & 1);
+	if (Num == 1) simv_desdvig2 = (((buf[len - 1]) >> 7) & 1);
+	for (i = 0; i < len; i++) {
+		simv_p = (buf[i] >> 7) & 1;
+		buf[i] = ((buf[i] << 1) & 0xFE) | (simv & 1);
+		simv = simv_p;
 
-}
+	}
 }
 
 
@@ -519,58 +517,53 @@ unsigned char simv_p;
 
 void CAbonent::SinchroSearhG728(int N)
 {
-    
 	BYTE * massiv,
 		   m_Byte[2];
-		 
 	ULONG m_Number[10],m_MaxSyn;
-
 	unsigned short int sss,m_Word;
 
- // Попрубуем засинхронизироватья на выборке в 500 байт (400 10-битных кодовых слов )
- if((massiv=new BYTE[500])==NULL) exit(0);
+	 // Попрубуем засинхронизироватья на выборке в 500 байт (400 10-битных кодовых слов )
+	 if((massiv=new BYTE[500])==NULL) exit(0);
  
- for(int i=0;i<10;i++)
- {
-   m_Number[i]=0;
-   memcpy(massiv,buf_dskr,500);
-   sdvig(massiv,500,i);
-   sss=0;
-  for(int k=0;k<499;k++)
-  {
-	  m_Byte[0]=massiv[k]>>sss;
-	  m_Byte[1]=massiv[k+1]; 
-	  m_Word=m_Byte[1];
-	  m_Word=m_Word<<(8-sss);
-	  m_Word=m_Word|m_Byte[0];
-	 
-	  if((m_Word&0x0202)==0x0200) m_Number[i]++;
-	  sss+=2;
-	  if(sss==8)
+	 for(int i=0;i<10;i++)
+	 {
+	   m_Number[i]=0;
+	   memcpy(massiv,buf_dskr,500);
+	   sdvig(massiv,500,i);
+	   sss=0;
+	  for(int k=0;k<499;k++)
 	  {
-		  sss=0;
-		  ++k;
+		  m_Byte[0]=massiv[k]>>sss;
+		  m_Byte[1]=massiv[k+1]; 
+		  m_Word=m_Byte[1];
+		  m_Word=m_Word<<(8-sss);
+		  m_Word=m_Word|m_Byte[0];
+	 
+		  if((m_Word&0x0202)==0x0200) m_Number[i]++;
+		  sss+=2;
+		  if(sss==8)
+		  {
+			  sss=0;
+			  ++k;
+		  }
 	  }
-  }
   
- }
+	 }
 
- delete [] massiv;
+	 delete [] massiv;
 
- m_MaxSyn=m_Number[0];
- m_MaxSynIndex[N]=0;
- for(int i=1;i<10;i++)
- {
-   if(m_Number[i]>m_MaxSyn)
-   {
-	   m_MaxSyn=m_Number[i];
-	   m_MaxSynIndex[N]=i;       // сдвиг для 728Vocoder
-   }
- }
-
+	 m_MaxSyn=m_Number[0];
+	 m_MaxSynIndex[N]=0;
+	 for(int i=1;i<10;i++)
+	 {
+	   if(m_Number[i]>m_MaxSyn)
+	   {
+		   m_MaxSyn=m_Number[i];
+		   m_MaxSynIndex[N]=i;       // сдвиг для 728Vocoder
+	   }
+	 }
+ return;
 }
-
-
 
   // Пока не знаю, но почему-то при любом сдвиге sdwig выходной файл необходимо
   // сдвинуть на 1 бит, тогда транскодирование для G726 пройдет нормально
@@ -598,7 +591,8 @@ void CAbonent::SdvigG726(int Num,UINT lenb)
 			  if(Num==0) fout1.Write(buf_dskr,lenb-1); // записываем в файл
 			  if(Num==1) fout2.Write(buf_dskr,lenb-1);
 
- delete [] BufTemp;
+	delete [] BufTemp;
+	return;
 }
 
 
@@ -662,8 +656,8 @@ void CAbonent::SdvigG728(int Num,UINT lenb)
 			 if(Num==1) fout2.Write(buf_dskr,lenb-2);
              
 			}
-
-delete [] BufTemp;
+	delete [] BufTemp;
+	return;
 }
 
 
