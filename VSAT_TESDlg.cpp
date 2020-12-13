@@ -87,9 +87,9 @@ BOOL CVSAT_TESDlg::OnInitDialog()
 	m_ConfigDlg.m_MaxSize.SetRange(1000,10000);
 
     GetDlgItem(ID_STOP)->EnableWindow(FALSE);	
-    m_TargetDirSave="C:\\";
+    m_TargetDirSave="C:\\temp";
 	m_ConfigDlg.SetDlgItemText(IDC_PATH," "+m_TargetDirSave);
-	m_TargetDirTemp="C:\\";
+	m_TargetDirTemp="C:\\temp";
 
     Com.AbonDlg=new CAbonentDlg;          // создаем объект абонентского диалогового окна
 	Com.AbonDlg->inhWnd=this->m_hWnd;
